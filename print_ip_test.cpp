@@ -5,7 +5,7 @@
 
 TEST(PrintIpTest, Test1)
 {
-  std::strstream ss;
+  std::ostringstream ss;
 
   print_ip(int8_t{-1}, ss);
   EXPECT_STREQ(ss.str(), "255") << "int8_t{-1}";
