@@ -3,6 +3,7 @@
 
 int main()
 {
+    
     print_ip(int8_t{-1});                           // 255
     std::cout << '\n';
     print_ip(int16_t{0});                           // 0.0
