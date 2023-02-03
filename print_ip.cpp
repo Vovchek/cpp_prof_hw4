@@ -3,7 +3,15 @@
 
 int main()
 {
-    
+    /*std::ostringstream ss;
+
+    print_ip(int8_t{-1}, ss);
+    std::cout << ss.rdbuf()->str() << '\n';
+  ss.rdbuf()->str("");
+*/
+
+    /// @brief /////////
+    /// @return 
     print_ip(int8_t{-1});                           // 255
     std::cout << '\n';
     print_ip(int16_t{0});                           // 0.0
