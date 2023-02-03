@@ -31,7 +31,7 @@ TEST(PrintIpTest, Test5)
 {
   std::ostringstream ss;
   print_ip(std::string{"Hello, World !"}, ss);
-  EXPECT_STREQ(ss.str().c_str(), "Hello, World!") << "std::string";
+  EXPECT_STREQ(ss.str().c_str(), "Hello, World !") << "std::string";
 }
 TEST(PrintIpTest, Test6)
 {
