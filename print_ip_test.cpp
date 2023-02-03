@@ -30,7 +30,6 @@ TEST(PrintIpTest, Test1)
   EXPECT_STREQ(ss.str().c_str(), "400.300.200.100") << "std::list<short>";
   ss.rdbuf()->str("");
   print_ip(std::make_tuple(123, 456, 789, 0));
-  EXPECT_STREQ(ss.str().c_str(), "123.456.789.0")
+  EXPECT_STREQ(ss.str().c_str(), "123.456.789.0") << "std::tuple<>";
 
 }
-
