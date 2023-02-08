@@ -26,6 +26,7 @@
 #include <iostream>
 #include <utility>
 #include <type_traits>
+#include <bit>
 
 template <typename T>
 union int_type
