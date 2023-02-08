@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 # GoogleTest requires at least C++17
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 20)
 
 set(PATCH_VERSION "1" CACHE INTERNAL "Patch version")
 set(PROJECT_VESRION 0.0.${PATCH_VERSION})
@@ -13,6 +13,7 @@ include(FetchContent)   # run ..\CMake\share\cmake-X.YY\Modules\FetchContent.cma
 FetchContent_Declare(
   googletest
   URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+  #URL G:/softdev/googletest-main.zip
 )
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
 
@@ -30,7 +31,7 @@ target_link_libraries(print_ip_test GTest::gtest_main)
 add_executable(print_ip print_ip.cpp) # target source ...
 
 set_target_properties(print_ip PROPERTIES    # target PROPERTIES prop1 value1  ...
-    CXX_STANDARD 17
+    CXX_STANDARD 20
     CXX_STANDARD_REQUIRED ON
 )
 target_include_directories(print_ip

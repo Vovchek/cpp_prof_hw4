@@ -28,33 +28,57 @@
 #include <type_traits>
 
 template <typename T>
-union int_type {
+union int_type
+{
 	T x;
 	unsigned char s[sizeof(T)];
 };
 
 template <typename T>
-std::enable_if_t<std::is_integral<T>::value> 
+std::enable_if_t<std::is_integral<T>::value>
 print_ip(T &&ip, std::ostream &os = std::cout)
 {
-	int_type<T> t {ip};	//t.x = ip;
-	for (int i = sizeof(ip) - 1; i >= 0; --i)
-	{
-		os << unsigned(t.s[i]);
-		// also works (whitch one does fit 'production rules'?):
-		// os << +(t.s[i]);
-		// os << static_cast<unsigned>(t.s[i]);
-		// os << static_cast<unsigned>(((unsigned char *)(&ip))[i]);
-		// os << +(((uint8_t *)(&ip))[i]);
-		// etc...
-		if (i)
-			os << ".";
+	int_type<T> t{ip}; // t.x = ip;
+
+	//bool little_endian {int_type<unsigned>{0xA1B2C3D4}.s[0] == 0xD4};
+	//bool big_endian {int_type<unsigned>{0xA1B2C3D4}.s[0] == 0xA1};
+
+	static_assert(	std::endian::native == std::endian::big ||
+					std::endian::native == std::endian::little,
+					 "mixed-endian is not supported yet");
+
+	// if (little_endian)
+	if constexpr (std::endian::native == std::endian::little)
+	{ 
+		for (int i = sizeof(ip) - 1; i >= 0; --i)
+		{
+			os << unsigned(t.s[i]);
+			// also works (which one does fit 'production rules'?):
+			// os << +(t.s[i]);
+			// os << static_cast<unsigned>(t.s[i]);
+			// os << static_cast<unsigned>(((unsigned char *)(&ip))[i]);
+			// os << +(((uint8_t *)(&ip))[i]);
+			// os << unsigned((ip >> (8*i)) & 0xff);
+			// etc...
+			if (i)
+				os << ".";
+		}
 	}
-	// os << '\n';
+	// else if (big_endian)
+	else
+	{
+		for (int i = 0; i < sizeof(ip); ++i)
+		{
+			if (i)
+				os << ".";
+			os << unsigned(t.s[i]);
+		}
+	}
+	// else {throw "mixed-endian is not supported yet"}
 }
 
 template <typename T>
-std::enable_if_t<std::is_same<T, std::string>::value> 
+std::enable_if_t<std::is_same<T, std::string>::value>
 print_ip(T &&s, std::ostream &os = std::cout)
 {
 	os << s; // << std::endl;
@@ -62,11 +86,10 @@ print_ip(T &&s, std::ostream &os = std::cout)
 
 template <
 	template <typename, typename> typename Container,
-	typename Type, typename Allocator = std::allocator<Type>
-	>
+	typename Type, typename Allocator = std::allocator<Type>>
 std::enable_if_t<std::is_same<Container<Type, Allocator>, std::vector<Type, Allocator>>::value ||
 				 std::is_same<Container<Type, Allocator>, std::list<Type, Allocator>>::value>
- print_ip(const Container<Type, Allocator> &container, std::ostream &os = std::cout)
+print_ip(const Container<Type, Allocator> &container, std::ostream &os = std::cout)
 {
 
 	for (auto iter = std::begin(container); iter != std::end(container); ++iter)
@@ -84,7 +107,7 @@ void print_ip(const TT &t, std::ostream &os = std::cout)
 {
 	if constexpr (I > 1)
 	{
-		static_assert(std::is_same<decltype(std::get<0>(t)), decltype(std::get<I-1>(t))>::value );
+		static_assert(std::is_same<decltype(std::get<0>(t)), decltype(std::get<I - 1>(t))>::value);
 		print_ip<TT, I - 1>(t, os);
 	}
 	os << (std::get<I - 1>(t));
@@ -92,8 +115,7 @@ void print_ip(const TT &t, std::ostream &os = std::cout)
 		os << '.';
 }
 
-
-/* also works:
+/* also works, but lacks members' types similarity assert:
 
 template<std::size_t I = 0, typename... Tp>
 std::enable_if_t<I == sizeof...(Tp)>
@@ -103,10 +125,10 @@ template<std::size_t I = 0, typename... Tp>
 std::enable_if_t<I < sizeof...(Tp)>
   print_ip(const std::tuple<Tp...>& t, std::ostream &os = std::cout)
   {
-    os << std::get<I>(t);
+	os << std::get<I>(t);
 	if constexpr (I+1 < sizeof...(Tp))
 		os << '.';
-    print_ip<I + 1, Tp...>(t, os);
+	print_ip<I + 1, Tp...>(t, os);
   }
 
 */
