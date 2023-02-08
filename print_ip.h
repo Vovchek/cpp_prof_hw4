@@ -28,12 +28,25 @@
 #include <type_traits>
 
 template <typename T>
+union int_type {
+	T x;
+	unsigned char s[sizeof(T)];
+};
+
+template <typename T>
 std::enable_if_t<std::is_integral<T>::value> 
 print_ip(T &&ip, std::ostream &os = std::cout)
 {
+	int_type<T> t {ip};	//t.x = ip;
 	for (int i = sizeof(ip) - 1; i >= 0; --i)
 	{
-		os << static_cast<unsigned>(((uint8_t *)(&ip))[i]);
+		os << unsigned(t.s[i]);
+		// also works (whitch one does fit 'production rules'?):
+		// os << +(t.s[i]);
+		// os << static_cast<unsigned>(t.s[i]);
+		// os << static_cast<unsigned>(((unsigned char *)(&ip))[i]);
+		// os << +(((uint8_t *)(&ip))[i]);
+		// etc...
 		if (i)
 			os << ".";
 	}
@@ -71,7 +84,7 @@ void print_ip(const TT &t, std::ostream &os = std::cout)
 {
 	if constexpr (I > 1)
 	{
-		static_assert(std::is_same_v<decltype(std::get<0>(t)), decltype(std::get<I-1>(t))> );
+		static_assert(std::is_same<decltype(std::get<0>(t)), decltype(std::get<I-1>(t))>::value );
 		print_ip<TT, I - 1>(t, os);
 	}
 	os << (std::get<I - 1>(t));
@@ -80,7 +93,8 @@ void print_ip(const TT &t, std::ostream &os = std::cout)
 }
 
 
-/*
+/* also works:
+
 template<std::size_t I = 0, typename... Tp>
 std::enable_if_t<I == sizeof...(Tp)>
   print_ip(const std::tuple<Tp...>& t, std::ostream &os = std::cout)
@@ -94,4 +108,5 @@ std::enable_if_t<I < sizeof...(Tp)>
 		os << '.';
     print_ip<I + 1, Tp...>(t, os);
   }
+
 */
